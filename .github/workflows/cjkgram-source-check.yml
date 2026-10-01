@@ -1,0 +1,24 @@
+name: CJKGram source check
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  source-check:
+    # The Telegram iOS project requires macOS/Xcode for a full build.
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Check Swift sources
+        run: |
+          swiftc -parse-as-library -parse \
+            submodules/Postbox/Sources/CJKSearch.swift \
+            submodules/Postbox/Sources/MessageHistoryTextIndexTable.swift
+      - name: Check repository diff
+        run: git diff --check

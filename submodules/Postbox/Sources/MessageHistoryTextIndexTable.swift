@@ -70,6 +70,27 @@ final class MessageHistoryTextIndexTable {
     }
     
     func search(peerId: PeerId?, text: String, tags: MessageTags?) -> [MessageId] {
+        let cjkTerms = CJKSearch.terms(for: text)
+        if cjkTerms.count > 1 || (cjkTerms.count == 1 && cjkTerms[0] != text) {
+            var orderedMatches: [MessageId]?
+            for term in cjkTerms {
+                let termMatches = self.searchSingle(peerId: peerId, text: term, tags: tags)
+                if orderedMatches == nil {
+                    orderedMatches = termMatches
+                } else {
+                    let termMatchSet = Set(termMatches)
+                    orderedMatches = orderedMatches!.filter { termMatchSet.contains($0) }
+                }
+                if orderedMatches?.isEmpty == true {
+                    return []
+                }
+            }
+            return orderedMatches ?? []
+        }
+        return self.searchSingle(peerId: peerId, text: text, tags: tags)
+    }
+
+    private func searchSingle(peerId: PeerId?, text: String, tags: MessageTags?) -> [MessageId] {
         var escapedText = String(text.map({ c in
             var codeUnits: [UnicodeScalar] = []
             for codeUnit in String(c).unicodeScalars {
