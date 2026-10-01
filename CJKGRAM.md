@@ -23,13 +23,17 @@ with your own Telegram `api_id`, application identifier, Apple Team ID and
 bundle identifiers. CJKGram is an unofficial client and must use its own API
 credentials and branding.
 
+The repository includes `build-system/cjkgram-development-configuration.json`
+as a starting point. Replace its three `YOUR_*` values before invoking the
+project generator; do not commit real API credentials or signing secrets.
+
 ```sh
 git clone --recursive -j8 https://github.com/githubhjs/CJKGram-iOS.git
 cd CJKGram-iOS
 python3 build-system/Make/Make.py \
   --cacheDir="$HOME/cjkgram-bazel-cache" \
   generateProject \
-  --configurationPath=build-system/template_minimal_development_configuration.json \
+  --configurationPath=build-system/cjkgram-development-configuration.json \
   --xcodeManagedCodesigning
 ```
 
